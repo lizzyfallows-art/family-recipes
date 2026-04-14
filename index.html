@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fallows Family Recipes</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FDFAF5;
+  --paper2: #F7F2E8;
+  --white: #FFFFFF;
+  --ink: #1A1611;
+  --ink2: #3D3529;
+  --ink3: #6B5F50;
+  --ink4: #9C8E7D;
+  --rust: #B5451B;
+  --rust-light: #F5EAE4;
+  --rust-mid: #D97B56;
+  --sage: #4A6741;
+  --sage-light: #EAF0E7;
+  --gold: #8C6D2F;
+  --gold-light: #F5EDDB;
+  --border: #E2D9CB;
+  --border2: #CEC3B2;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  padding: 0 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.logo {
+  font-family: 'Lora', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--paper);
+  letter-spacing: 0.01em;
+}
+.logo em { color: var(--rust-mid); font-style: italic; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+
+.search-wrap { position: relative; }
+.search-wrap svg {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; color: var(--ink4); pointer-events: none;
+}
+#searchInput {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 8px 12px 8px 34px;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  color: white;
+  width: 210px;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+#searchInput::placeholder { color: rgba(255,255,255,0.45); }
+#searchInput:focus { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+
+.btn-add {
+  background: var(--rust);
+  color: white;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  display: flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.btn-add:hover { background: #993B15; }
+.btn-add:active { transform: scale(0.97); }
+
+/* ── CATEGORY BAR ── */
+.cat-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2.5rem;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cat-bar::-webkit-scrollbar { display: none; }
+.cat-btn {
+  padding: 14px 18px;
+  border: none;
+  background: transparent;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink3);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.03em;
+}
+.cat-btn:hover { color: var(--rust); }
+.cat-btn.active { color: var(--rust); border-bottom-color: var(--rust); }
+
+/* ── GRID ── */
+.grid-wrap { padding: 2rem 2.5rem; max-width: 1400px; margin: 0 auto; }
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(26,22,17,0.1); }
+
+.card-thumb {
+  height: 180px;
+  background: var(--paper2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.5rem;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.card-thumb img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.card-body { padding: 1rem 1.2rem 1.2rem; display: flex; flex-direction: column; flex: 1; }
+.card-cat {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 5px;
+}
+.card-title {
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.card-desc {
+  font-size: 13px;
+  color: var(--ink3);
+  line-height: 1.5;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-footer {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink4);
+}
+.card-footer span { display: flex; align-items: center; gap: 4px; }
+
+/* ── EMPTY STATE ── */
+.empty {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: var(--ink3);
+}
+.empty h2 { font-family: 'Lora', serif; font-size: 1.6rem; color: var(--ink2); margin-bottom: 0.6rem; }
+.empty p { font-size: 15px; line-height: 1.6; max-width: 380px; margin: 0 auto; }
+
+/* ── MODAL BASE ── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(26,22,17,0.55);
+  z-index: 300;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  overflow-y: auto;
+  backdrop-filter: blur(2px);
+}
+.overlay.open { display: flex; }
+
+/* ── RECIPE VIEW MODAL ── */
+.view-modal {
+  background: var(--white);
+  border-radius: 18px;
+  width: 100%; max-width: 680px;
+  margin: auto;
+  overflow: hidden;
+  position: relative;
+}
+.view-hero {
+  height: 260px;
+  background: var(--paper2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem;
+  position: relative;
+  overflow: hidden;
+}
+.view-hero img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.view-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  background: rgba(26,22,17,0.6);
+  color: white; border: none; border-radius: 50%;
+  font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; transition: background 0.15s;
+  line-height: 1;
+}
+.view-close:hover { background: rgba(26,22,17,0.85); }
+.view-close-light {
+  position: absolute; top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  background: var(--paper2);
+  color: var(--ink2); border: 1px solid var(--border); border-radius: 50%;
+  font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; transition: background 0.15s;
+  line-height: 1;
+}
+.view-close-light:hover { background: var(--border); }
+
+.view-body { padding: 1.75rem 2rem 2.25rem; }
+.view-cat { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rust); margin-bottom: 8px; }
+.view-title { font-family: 'Lora', serif; font-size: 1.9rem; font-weight: 600; line-height: 1.2; color: var(--ink); margin-bottom: 10px; }
+.view-desc { font-size: 15px; color: var(--ink3); line-height: 1.7; margin-bottom: 1.25rem; }
+.view-meta {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  font-size: 13px; color: var(--ink3);
+}
+.view-meta span { display: flex; align-items: center; gap: 5px; }
+.view-meta strong { color: var(--ink2); font-weight: 500; }
+.view-meta a { color: var(--rust); text-decoration: none; }
+.view-meta a:hover { text-decoration: underline; }
+
+.sec-head {
+  font-family: 'Lora', serif;
+  font-size: 1.15rem; font-weight: 600;
+  color: var(--ink); margin: 1.5rem 0 0.875rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-head::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.ing-list { list-style: none; }
+.ing-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px; color: var(--ink2); line-height: 1.5;
+}
+.ing-list li:last-child { border-bottom: none; }
+.ing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rust); flex-shrink: 0; margin-top: 6px; }
+
+.step-list { list-style: none; }
+.step-list li {
+  display: flex; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px; color: var(--ink2); line-height: 1.7;
+}
+.step-list li:last-child { border-bottom: none; }
+.step-n {
+  font-family: 'Lora', serif;
+  font-size: 1rem; font-weight: 600; color: var(--rust);
+  min-width: 22px; flex-shrink: 0; padding-top: 2px;
+}
+
+.notes-box {
+  background: var(--gold-light);
+  border: 1px solid #DDD0B0;
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 13px 16px;
+  font-size: 13.5px;
+  color: #5C4A1E;
+  line-height: 1.65;
+  margin-top: 1.5rem;
+}
+.notes-box strong { display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); }
+
+.view-actions {
+  margin-top: 1.75rem; padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.del-btn {
+  background: none; border: 1px solid #E5CBCB; color: #A33;
+  border-radius: 8px; padding: 8px 16px;
+  font-family: 'Jost', sans-serif; font-size: 13px; cursor: pointer;
+  transition: background 0.15s;
+}
+.del-btn:hover { background: #FFF0F0; }
+
+/* ── ADD MODAL ── */
+.add-modal {
+  background: var(--white);
+  border-radius: 18px;
+  width: 100%; max-width: 560px;
+  padding: 2rem; margin: auto;
+  position: relative;
+}
+.modal-title { font-family: 'Lora', serif; font-size: 1.5rem; color: var(--ink); margin-bottom: 4px; }
+.modal-sub { font-size: 14px; color: var(--ink3); line-height: 1.5; margin-bottom: 1.5rem; }
+
+.tabs { display: flex; gap: 0; background: var(--paper2); border-radius: 8px; padding: 3px; margin-bottom: 1.5rem; }
+.tab-btn2 {
+  flex: 1; padding: 8px; border: none; background: transparent;
+  border-radius: 6px; font-family: 'Jost', sans-serif; font-size: 13px;
+  font-weight: 500; cursor: pointer; color: var(--ink3); transition: all 0.15s;
+}
+.tab-btn2.active { background: white; color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 13px; font-weight: 500; color: var(--ink2); margin-bottom: 5px; }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 9px 13px;
+  border: 1px solid var(--border); border-radius: 8px;
+  font-family: 'Jost', sans-serif; font-size: 14px; color: var(--ink);
+  background: var(--paper); outline: none;
+  transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--rust-mid); }
+.field textarea { resize: vertical; min-height: 80px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.api-note {
+  background: var(--sage-light);
+  border: 1px solid #BDD4B8;
+  border-radius: 9px; padding: 13px 15px;
+  font-size: 13px; color: #384E35; line-height: 1.6; margin-bottom: 1rem;
+}
+.api-note a { color: var(--sage); }
+
+.ai-status {
+  background: var(--rust-light); border: 1px solid #E8C3B0;
+  border-radius: 8px; padding: 11px 14px;
+  font-size: 13px; color: var(--rust);
+  margin-bottom: 1rem; display: none; align-items: center; gap: 10px;
+}
+.ai-status.show { display: flex; }
+.spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--rust-mid); border-top-color: var(--rust); animation: spin 0.65s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
+.btn-cancel {
+  padding: 9px 18px; border: 1px solid var(--border); border-radius: 8px;
+  background: transparent; font-family: 'Jost', sans-serif; font-size: 14px;
+  cursor: pointer; color: var(--ink3); transition: background 0.15s;
+}
+.btn-cancel:hover { background: var(--paper2); }
+.btn-save {
+  padding: 9px 22px; background: var(--rust); color: white; border: none;
+  border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-save:hover { background: #993B15; }
+.btn-save:disabled { background: var(--ink4); cursor: not-allowed; }
+
+@media (max-width: 640px) {
+  header { padding: 0 1rem; }
+  .logo { font-size: 1.1rem; }
+  #searchInput { width: 150px; }
+  .cat-bar { padding: 0 1rem; }
+  .grid-wrap { padding: 1rem; }
+  .view-body { padding: 1.25rem; }
+  .view-title { font-size: 1.5rem; }
+  .row2 { grid-template-columns: 1fr; }
+  .add-modal { padding: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Fallows <em>&amp;</em> Food</div>
+  <div class="header-right">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search recipes…" oninput="renderGrid()">
+    </div>
+    <button class="btn-add" onclick="openAdd()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Recipe
+    </button>
+  </div>
+</header>
+
+<div class="cat-bar" id="catBar">
+  <button class="cat-btn active" onclick="setFilter('All',this)">All</button>
+  <button class="cat-btn" onclick="setFilter('Dinner',this)">Dinner</button>
+  <button class="cat-btn" onclick="setFilter('Breakfast',this)">Breakfast</button>
+  <button class="cat-btn" onclick="setFilter('Sauces & Dressings',this)">Sauces &amp; Dressings</button>
+  <button class="cat-btn" onclick="setFilter('Soups',this)">Soups</button>
+  <button class="cat-btn" onclick="setFilter('Snacks & Sweets',this)">Snacks &amp; Sweets</button>
+  <button class="cat-btn" onclick="setFilter('Basics',this)">Basics</button>
+</div>
+
+<div class="grid-wrap">
+  <div class="recipe-grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">
+    <h2>No recipes found</h2>
+    <p>Try a different search or category.</p>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="overlay" id="viewOverlay">
+  <div class="view-modal" id="viewModal"></div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="overlay" id="addOverlay">
+  <div class="add-modal">
+    <button class="view-close-light" onclick="closeAdd()">×</button>
+    <h2 class="modal-title">Add a Recipe</h2>
+    <div class="tabs">
+      <button class="tab-btn2 active" onclick="switchTab('url',this)">Paste a URL</button>
+      <button class="tab-btn2" onclick="switchTab('manual',this)">Add manually</button>
+    </div>
+
+    <div class="tab-panel active" id="tp-url">
+      <p class="modal-sub">Paste any recipe URL — NYT Cooking, Minimalist Baker, anywhere. Claude AI will extract everything automatically.</p>
+      <div class="api-note">
+        <strong style="font-weight:600">One-time setup:</strong> Enter your Anthropic API key (free at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys). It's saved in your browser.
+      </div>
+      <div class="field">
+        <label>Anthropic API Key</label>
+        <input type="password" id="apiKey" placeholder="sk-ant-…">
+      </div>
+      <div class="field">
+        <label>Recipe URL</label>
+        <input type="url" id="urlInput" placeholder="https://cooking.nytimes.com/…">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="urlCat">
+          <option>Dinner</option><option>Breakfast</option>
+          <option>Sauces &amp; Dressings</option><option>Soups</option>
+          <option>Snacks &amp; Sweets</option><option>Basics</option>
+        </select>
+      </div>
+      <div class="ai-status" id="aiStatus">
+        <div class="spin"></div>
+        <span id="aiText">Fetching recipe…</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="closeAdd()">Cancel</button>
+        <button class="btn-save" id="fetchBtn" onclick="fetchFromUrl()">Fetch with AI</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tp-manual">
+      <p class="modal-sub">Add a recipe by hand — great for family heirlooms or anything without a URL.</p>
+      <div class="field"><label>Recipe Name</label><input id="m-name" placeholder="e.g. Grandma's Soup"></div>
+      <div class="row2">
+        <div class="field"><label>Category</label>
+          <select id="m-cat">
+            <option>Dinner</option><option>Breakfast</option>
+            <option>Sauces &amp; Dressings</option><option>Soups</option>
+            <option>Snacks &amp; Sweets</option><option>Basics</option>
+          </select>
+        </div>
+        <div class="field"><label>Servings</label><input id="m-serv" placeholder="e.g. 4 servings"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Prep time</label><input id="m-prep" placeholder="e.g. 15 min"></div>
+        <div class="field"><label>Cook time</label><input id="m-cook" placeholder="e.g. 30 min"></div>
+      </div>
+      <div class="field"><label>Description</label><input id="m-desc" placeholder="A quick summary"></div>
+      <div class="field"><label>Ingredients (one per line)</label><textarea id="m-ing" rows="5" placeholder="1 cup flour&#10;2 eggs&#10;pinch of salt"></textarea></div>
+      <div class="field"><label>Instructions (one step per line)</label><textarea id="m-steps" rows="5" placeholder="Preheat oven to 350°F&#10;Mix dry ingredients…"></textarea></div>
+      <div class="field"><label>Source URL (optional)</label><input id="m-src" placeholder="https://…"></div>
+      <div class="field"><label>Fallows Notes (optional)</label><input id="m-notes" placeholder="Tips, substitutions, kid preferences…"></div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="closeAdd()">Cancel</button>
+        <button class="btn-save" onclick="addManual()">Add Recipe</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── RECIPE DATA ────────────────────────────────────────────────────────────
+const BUILT_IN = [
+
+// ══ SAUCES & DRESSINGS ══
+{id:'b1', cat:'Sauces & Dressings', emoji:'🫙', title:'Balsamic Vinaigrette',
+ desc:'A classic emulsified vinaigrette — sharp, garlicky, and versatile.',
+ prep:'5 min', cook:'', servings:'About 1½ cups',
+ source:'',
+ notes:'',
+ ingredients:['1 cup extra-virgin olive oil','⅓ cup balsamic vinegar','1 tbsp Dijon mustard','2 cloves garlic, minced','Salt and pepper to taste'],
+ steps:['Whisk together the balsamic vinegar, Dijon mustard, and garlic in a bowl.','Slowly stream in the olive oil while whisking vigorously until thick and fully emulsified.','Season with salt and pepper to taste.']},
+
+{id:'b2', cat:'Sauces & Dressings', emoji:'🧀', title:"Lizzy's Oat Bakery Cheese",
+ desc:"A creamy cashew-based cheese with truffle zest — a Fallows house staple.",
+ prep:'5 min', cook:'', servings:'About 2 cups',
+ source:'',
+ notes:'ACV is in the big plastic bottle on the bottom shelf of door #4. Truffle zest is in the spice drawer.',
+ ingredients:['2 cups cashews','2 cups hot filtered water','2 tbsp apple cider vinegar','Almost 2 tbsp lemon juice','Pinch of salt','5–6 good shakes of truffle zest'],
+ steps:['Combine all ingredients in a high-speed blender.','Blend until completely smooth and creamy.','Taste and adjust seasoning.']},
+
+{id:'b3', cat:'Sauces & Dressings', emoji:'🫚', title:'Ginger Sesame Sauce',
+ desc:'A punchy, slightly spicy Asian-style sauce — great on noodles, bowls, or salads.',
+ prep:'5 min', cook:'', servings:'About ½ cup',
+ source:'',
+ notes:'',
+ ingredients:['2½ tbsp Bragg\'s liquid aminos','1 tbsp olive oil','1 tbsp toasted sesame oil','1 tbsp maple syrup','1 tbsp fresh grated ginger','2–3 tsp chili garlic sauce or sriracha','2 tsp lime juice (optional)'],
+ steps:['Whisk all ingredients together until well combined.','Taste and adjust heat or sweetness as needed.']},
+
+{id:'b4', cat:'Sauces & Dressings', emoji:'🫙', title:'Bitchin Sauce (aka Tina Sauce)',
+ desc:'A lighter, miso-spiked version of Bitchin\' Sauce — use water instead of oil.',
+ prep:'5 min', cook:'', servings:'About 1 cup',
+ source:'https://www.bitchinsauce.com',
+ notes:'Replace oil with water plus an extra ¼ cup water. Add extra lemon and 1 tbsp miso.',
+ ingredients:['Start with a standard Bitchin\' Sauce base (almond, lemon, nutritional yeast)','Replace all oil with water + extra ¼ cup water','Extra squeeze of lemon','1 tbsp miso paste'],
+ steps:['Combine all ingredients in a blender.','Blend until smooth, adding water to reach desired consistency.','Taste and adjust lemon and salt.']},
+
+{id:'b5', cat:'Sauces & Dressings', emoji:'🍜', title:'Noodle Sauce',
+ desc:'A quick savory-sweet sauce for noodles — comes together in one bowl.',
+ prep:'5 min', cook:'', servings:'2–3 servings',
+ source:'',
+ notes:'',
+ ingredients:['2 tbsp soy sauce','2 tbsp tahini','1 tbsp fresh lime juice','1 tbsp maple syrup','Sambal oelek to taste'],
+ steps:['Combine all ingredients in a small bowl and whisk well.','Taste and increase sambal oelek for more heat.','Toss with warm noodles immediately.']},
+
+{id:'b6', cat:'Sauces & Dressings', emoji:'🧄', title:'Garlic Dill Sauce',
+ desc:'A hummus-based dressing with bright lemon and garlic — great on grain bowls.',
+ prep:'5 min', cook:'', servings:'About ½ cup',
+ source:'',
+ notes:'',
+ ingredients:['⅓ cup hummus','1–2 tbsp lemon juice','1 tsp dried dill','3 cloves garlic, minced','~3 tbsp water to thin','Pinch of salt'],
+ steps:['Whisk together hummus, lemon juice, dill, and garlic.','Add water a tablespoon at a time until it reaches a pourable consistency.','Season with salt to taste.']},
+
+{id:'b7', cat:'Sauces & Dressings', emoji:'🫙', title:'Ginger Garlic Miso Dressing',
+ desc:'A deeply savory tahini-based dressing with bright ginger and rice vinegar.',
+ prep:'5 min', cook:'', servings:'About ¾ cup',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['⅓ cup tahini','1 heaping tbsp freshly grated ginger','2 cloves garlic, finely minced','1 heaping tsp yellow or white miso paste','1 tbsp coconut aminos','1 tbsp rice vinegar','1 tsp toasted sesame oil','2 tsp maple syrup','2–3 tbsp water','Pinch of sea salt'],
+ steps:['Whisk together all ingredients until smooth.','Add more water until dressing reaches desired consistency.','Taste and adjust seasoning.']},
+
+{id:'b8', cat:'Sauces & Dressings', emoji:'🟢', title:'Green Curry Tahini',
+ desc:'A bold, aromatic tahini sauce with green curry paste — incredible on roasted veg.',
+ prep:'5 min', cook:'', servings:'About ¾ cup',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['4½ tbsp green curry paste','2 tbsp tahini','2 tbsp lemon juice','1 tbsp maple syrup','Pinch each of salt and black pepper','Water to thin'],
+ steps:['Whisk together all ingredients.','Thin with water until pourable.','Taste and adjust lemon, salt, or sweetness.']},
+
+{id:'b9', cat:'Sauces & Dressings', emoji:'🌶️', title:'Sriracha Tahini',
+ desc:'A spicy, tangy tahini drizzle — good on pretty much everything.',
+ prep:'5 min', cook:'', servings:'About ½ cup',
+ source:'',
+ notes:'',
+ ingredients:['¼ cup tahini','3 tbsp lemon juice','1–2 cloves garlic','1–2 tsp tamari','1 tbsp maple syrup','1+ tbsp sriracha'],
+ steps:['Blend or whisk all ingredients until smooth.','Add water if needed to thin to drizzling consistency.']},
+
+{id:'b10', cat:'Sauces & Dressings', emoji:'🥗', title:'NYT Vegan Caesar Dressing',
+ desc:'A cashew-based caesar with nori and capers — rich, umami, and completely dairy-free.',
+ prep:'10 min', cook:'', servings:'About 1½ cups (double batch)',
+ source:'https://cooking.nytimes.com',
+ notes:'Make a double batch (2x all ingredients).',
+ ingredients:['1 cup whole unroasted cashews','¼ cup nutritional yeast','1 sheet roasted nori, crumbled (optional)','¼ cup fresh lemon juice','3 garlic cloves','2 tsp caper brine','1 tsp Dijon mustard','1 tsp white miso paste','Water as needed'],
+ steps:['Soak cashews in hot water for 15 minutes, then drain.','Add all ingredients to a high-speed blender.','Blend, adding water a tablespoon at a time, until completely smooth and creamy.','Taste and adjust lemon or salt.']},
+
+{id:'b11', cat:'Sauces & Dressings', emoji:'🫙', title:'Ginger Tahini Dressing (Oil-Free)',
+ desc:'A clean, bright dressing with honey, ACV, and a pinch of chili.',
+ prep:'5 min', cook:'', servings:'About ½ cup',
+ source:'',
+ notes:'',
+ ingredients:['1 inch fresh ginger, finely grated','2–3 tsp honey','1½ tbsp soy sauce','¼ cup tahini','3 tbsp apple cider vinegar','Pinch of Aleppo pepper or red chili flakes','Salt to taste','1–2 tbsp water to thin'],
+ steps:['Whisk together all ingredients until smooth.','Thin with water as needed.','Taste and adjust sweetness or acidity.']},
+
+{id:'b12', cat:'Sauces & Dressings', emoji:'🫙', title:'Black Vinegar Noodle Sauce',
+ desc:'A punchy, garlicky sauce with Chinkiang vinegar and chili oil — ready in minutes.',
+ prep:'5 min', cook:'', servings:'2 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'',
+ ingredients:['2 tbsp Chinkiang (black) vinegar','1 tbsp Bragg\'s liquid aminos','1 tbsp chile oil or chile crisp','1 scallion, finely chopped','½-inch piece fresh ginger, peeled and finely chopped'],
+ steps:['Combine all ingredients in a bowl and stir well.','Taste and adjust vinegar or heat.','Toss immediately with hot cooked noodles.']},
+
+// ══ DINNER ══
+{id:'b13', cat:'Dinner', emoji:'🥬', title:'Chickpeas with Baby Spinach',
+ desc:'A simple, hearty weeknight staple — cumin-spiced chickpeas simmered with tomatoes and wilted spinach.',
+ prep:'10 min', cook:'25 min', servings:'4 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'Use tomato paste from one of the big cans. Save 1 big handful of spinach for pancakes. Lizzy should stir in the spinach AT 5:30, a handful at a time, until each addition wilts.',
+ ingredients:['1 tbsp olive oil','1 medium onion, chopped','2 garlic cloves, minced','1 tsp cumin','Salt and pepper','1 tbsp tomato paste','2 tomatoes, chopped','4 cups chickpeas (cooked or canned)','1 cup vegetable broth','All spinach except 1 large handful'],
+ steps:['Heat olive oil in a large heavy saucepan over medium heat. Add the onion and cook, stirring, until tender, about 5 minutes.','Add garlic, cumin, tomato paste, and ½ tsp salt. Cook, stirring, 1–2 minutes until fragrant and the tomato paste darkens.','Add the chopped tomatoes and simmer gently about 5 minutes until they soften.','Add the chickpeas and vegetable broth. Bring to a simmer, cover, reduce heat, and simmer 10 minutes.','Stir in the spinach a handful at a time, letting each addition wilt before adding more. Simmer uncovered, stirring often, 5 minutes. Adjust salt, pepper, and cayenne.']},
+
+{id:'b14', cat:'Dinner', emoji:'🥬', title:'Spinach, Tofu & Sesame Stir-Fry',
+ desc:'Quick, protein-rich stir-fry with crispy tofu and wilted spinach in a sesame-soy glaze.',
+ prep:'15 min', cook:'15 min', servings:'3–4 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'Use a NONSTICK pan. Drain tofu for 45 minutes before cooking. Serve with rice.',
+ ingredients:['1 tbsp olive oil','1 block tofu, drained 45 min, cut in small squares','2 large garlic cloves, minced','2 tsp minced ginger','Soy sauce to taste','All baby spinach, rinsed','2 tbsp toasted sesame seeds','1 tsp sesame oil (less if it looks greasy)'],
+ steps:['Heat oil in a large nonstick skillet or wok over medium-high heat. Add tofu and stir-fry until lightly colored, 3–5 minutes.','Add garlic, ginger, and chili flakes. Cook, stirring, until fragrant, about 1 minute. Add soy sauce to taste.','Add spinach and stir-fry until wilted, about 1 minute. Stir in sesame seeds. Add more soy sauce if desired. Remove from heat.','Using tongs, transfer the spinach and tofu to a serving bowl, leaving the liquid behind. Drizzle with sesame oil.']},
+
+{id:'b15', cat:'Dinner', emoji:'🍝', title:'Creamy Vegan Pink Pasta Sauce',
+ desc:'A silky cashew cream stirred into a simple tomato base — an instant family favorite.',
+ prep:'15 min', cook:'20 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'Soak cashews before starting. Thin the sauce with pasta water if it gets too thick.',
+ ingredients:['The Cashew Cream: 1 cup raw cashews (soaked 1 hr)','1 cup water','1 tbsp nutritional yeast','Pinch of salt','The Red Base: 1 tbsp olive oil','½ large white onion, finely diced','4 cloves garlic, minced','1½ cups crushed tomatoes or marinara','Pinch of red pepper flakes (optional)','Fresh basil for serving'],
+ steps:['Make the cashew cream: Blend drained soaked cashews with ½ cup fresh water, nutritional yeast, and salt until completely smooth. Set aside.','Sauté aromatics: Heat olive oil over medium heat. Add onion and a pinch of salt. Cook 5 minutes until translucent. Add garlic and cook 1 more minute.','Simmer the red sauce: Add crushed tomatoes and simmer on low 5–10 minutes.','Make the pink sauce: Pour cashew cream into the red sauce. Stir over low heat until the sauce turns creamy orange-pink. Thin with pasta water as needed. Serve over pasta with fresh basil.']},
+
+{id:'b16', cat:'Dinner', emoji:'🫘', title:'Coconut Ginger Black Beans',
+ desc:'Creamy coconut milk-braised black beans with fresh ginger and a hit of lime.',
+ prep:'10 min', cook:'25 min', servings:'4 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'',
+ ingredients:['2 cups cooked black beans','1½ tsp ground cumin or coriander','1 piece (3-inch) fresh ginger, peeled and finely grated','1 can (13 oz) full-fat coconut milk','Kosher salt and black pepper','1 tsp lime zest plus 2 tbsp juice'],
+ steps:['In a large saucepan, heat a splash of broth over medium. Add cumin and half the ginger; cook 1–2 minutes until fragrant.','Add black beans and coconut milk; season generously with salt and pepper. Bring to a boil, then reduce to a simmer.','Cook 15–20 minutes, stirring occasionally, smashing some beans with the back of a spoon as you go.','Add lime zest and several grinds of black pepper. Remove from heat and stir in remaining ginger and lime juice a little at a time until bright but still coconut-rich.']},
+
+{id:'b17', cat:'Dinner', emoji:'🍜', title:'Super Savory Grated Tofu',
+ desc:'Grated tofu crisped in a skillet then tossed in a tangy tamari-sesame sauce.',
+ prep:'15 min', cook:'20 min', servings:'3–4 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'Press the tofu first. Grate using the large holes of a box grater.',
+ ingredients:['1 block tofu, pressed','1 tbsp neutral oil','4 green onions, sliced at an angle','1 chili, thinly sliced (optional)','3 garlic cloves, thinly sliced','1 tbsp roasted sesame seeds','Sauce: 3 tbsp tamari or soy sauce','1 tbsp Chinese black vinegar (or 2 parts rice vinegar + 1 part aged balsamic)','1 tsp maple syrup','1 tbsp chile flakes','1 tbsp sesame oil'],
+ steps:['Wrap pressed tofu in a thin dish towel and gently squeeze to remove excess water. Grate using the large holes of a box grater.','Heat oil in a large nonstick skillet over medium-high. Add scallions, chili (if using), and garlic. Cook, stirring, about 2 minutes until garlic is slightly golden.','Add grated tofu and toss to coat. Cook undisturbed 2 minutes, then stir. Continue cooking, stirring every 2 minutes, until golden brown in spots, 10–14 minutes total.','Whisk together the sauce ingredients. Pour into the pan — it will bubble rapidly. Stir to coat evenly. Cook 1 minute. Remove from heat and sprinkle with sesame seeds.']},
+
+{id:'b18', cat:'Dinner', emoji:'🍄', title:'Mushroom Stroganoff',
+ desc:'A rich, creamy vegan stroganoff — deeply savory and perfect over egg noodles or pasta.',
+ prep:'15 min', cook:'25 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'No oil — sauté in broth. Substitute wine with ½ broth + 1 tbsp white vinegar. Use 1 can coconut milk in place of ½ cup cashew cream.',
+ ingredients:['Mushrooms (cremini or mixed), sliced','1 onion, diced','3 garlic cloves, minced','Vegetable broth (for sautéing and simmering)','½ cup vegetable broth + 1 tbsp white vinegar (instead of wine)','1 can coconut milk','1 tbsp soy sauce or tamari','1 tsp Dijon mustard','Salt, pepper, fresh thyme'],
+ steps:['Sauté onion and garlic in a splash of vegetable broth over medium heat until soft.','Add mushrooms and cook until deeply golden, adding more broth as needed.','Add the broth-vinegar mixture (instead of wine) and cook 2 minutes.','Stir in coconut milk, soy sauce, and Dijon. Simmer 10 minutes until sauce thickens. Season and serve over noodles.']},
+
+{id:'b19', cat:'Dinner', emoji:'🍆', title:'Miso Glazed Eggplant',
+ desc:'Silky roasted eggplant with a caramelized miso glaze — a quick, impressive dish.',
+ prep:'10 min', cook:'25 min', servings:'3–4 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'Use a non-stick pan and very little oil!',
+ ingredients:['2 medium eggplants, halved lengthwise','2 tbsp white miso paste','1 tbsp mirin','1 tbsp soy sauce','1 tsp sesame oil','1 tsp maple syrup','Sesame seeds and scallions for garnish'],
+ steps:['Score the eggplant flesh in a crosshatch pattern. Brush with a tiny amount of oil.','Mix together miso, mirin, soy sauce, sesame oil, and maple syrup for the glaze.','Cook eggplant cut-side down in a nonstick pan over medium heat until tender, about 10 minutes.','Flip, brush generously with glaze, and cook another 5–8 minutes. Garnish with sesame seeds and scallions.']},
+
+{id:'b20', cat:'Dinner', emoji:'🥦', title:'Cauliflower Korma',
+ desc:'A fragrant, gently spiced korma with tender cauliflower in a creamy sauce.',
+ prep:'15 min', cook:'30 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'Double the cauliflower. Prep remaining cauliflower for blanching another day. No oil — sauté in broth.',
+ ingredients:['2 heads cauliflower, cut into florets (double amount)','1 onion, diced','3 garlic cloves','1 inch fresh ginger','Vegetable broth for sautéing','2 tsp korma spice blend (cumin, coriander, cardamom, turmeric)','1 can coconut milk','Cashew cream to enrich','Salt to taste','Fresh cilantro to serve'],
+ steps:['Sauté onion in vegetable broth over medium heat until soft. Add garlic, ginger, and spices and cook 2 minutes.','Add cauliflower and toss to coat in the spice mixture. Add coconut milk and simmer covered 15–20 minutes until cauliflower is tender.','Stir in cashew cream and simmer 5 more minutes. Season well. Serve over rice with cilantro.']},
+
+{id:'b21', cat:'Dinner', emoji:'🌮', title:'Cauliflower Tacos',
+ desc:'Spiced roasted cauliflower in warm tortillas, topped with fresh mango salsa.',
+ prep:'20 min', cook:'25 min', servings:'4 servings (double recipe)',
+ source:'https://minimalistbaker.com',
+ notes:'Double the recipe. Improvise a bit on the spice mix — we have most of it. Make the mango salsa instead of the hot sauce they recommend.',
+ ingredients:['2 heads cauliflower, cut into florets','Spice mix: cumin, chili powder, smoked paprika, garlic powder, salt','Corn or flour tortillas','Mango salsa: 1 mango diced, ½ red onion, lime juice, cilantro, jalapeño','Shredded cabbage, avocado, lime'],
+ steps:['Toss cauliflower with spice mix and a little oil or broth. Roast at 425°F for 25 minutes until caramelized.','Make the mango salsa by combining all salsa ingredients. Let it sit at least 10 minutes.','Warm tortillas. Fill with roasted cauliflower, mango salsa, shredded cabbage, and avocado slices.']},
+
+{id:'b22', cat:'Dinner', emoji:'🍝', title:'Spinach & Artichoke Pasta',
+ desc:'A creamy, plant-based spin on classic spinach-artichoke dip, tossed with pasta.',
+ prep:'15 min', cook:'20 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'Double the sauce.',
+ ingredients:['12 oz pasta','1 cup raw cashews, soaked and blended with water until smooth','1 can artichoke hearts, drained and chopped','3 cups fresh spinach','4 garlic cloves, minced','¼ cup nutritional yeast','1 tbsp lemon juice','Salt, pepper, red pepper flakes'],
+ steps:['Cook pasta in salted water. Reserve 1 cup pasta water before draining.','Sauté garlic in a splash of broth or oil. Add artichoke hearts and cook 3 minutes.','Stir in blended cashew cream (double the amount), nutritional yeast, and lemon juice. Thin with pasta water.','Add spinach and stir until wilted. Toss with drained pasta. Season and serve.']},
+
+{id:'b23', cat:'Dinner', emoji:'🍱', title:'Tofu/Tempeh Katsu (LOST recipe)',
+ desc:'Crispy panko-crusted tofu or tempeh with a homemade teriyaki dipping sauce.',
+ prep:'20 min', cook:'20 min', servings:'4–6 pieces',
+ source:'',
+ notes:'From our time in Bali — LOST recipe, kept by memory.',
+ ingredients:['Tofu or tempeh — 6 pieces','8 tbsp bread flour','4 tbsp cornstarch','2 tbsp garlic powder','100g breadcrumbs','Water, salt, pepper','Teriyaki Sauce: 100ml mirin, 50ml soy sauce, 20g grated garlic, cornstarch to thicken'],
+ steps:['Make the batter: mix bread flour, cornstarch, garlic powder, salt, and pepper. Add water until liquid batter forms.','Cut tofu or tempeh into squares of desired size.','Dip pieces in batter, then coat thoroughly in breadcrumbs.','Deep-fry until golden. For the sauce, simmer mirin, soy sauce, and garlic together, then thicken with a cornstarch slurry.']},
+
+{id:'b24', cat:'Dinner', emoji:'🌽', title:'Corn Fritters (LOST recipe)',
+ desc:'Light, crispy corn fritters with garlic and a hint of chili — an air-fryer winner.',
+ prep:'20 min', cook:'20 min', servings:'6–8 fritters',
+ source:'',
+ notes:'From our time in Bali. Use rice flour instead of corn flour.',
+ ingredients:['3 ears of corn','75g shallot','4 tbsp bread flour','2 tbsp rice flour (instead of corn flour)','50g garlic','1 chili','Salt, pepper','1 kaffir lime leaf, very thinly sliced'],
+ steps:['Blend half the corn kernels in a food processor with shallot, garlic, and chili.','Stir in the remaining whole corn kernels.','Mix in both flours. Add salt, pepper, and very thinly sliced lime leaf to taste.','Shape into 6–8 round patties. Air-fry on parchment paper until starting to brown, flipping halfway, until golden.']},
+
+{id:'b25', cat:'Dinner', emoji:'🥗', title:'Mary Me Butter Beans',
+ desc:'Creamy, garlicky butter beans in a sun-dried tomato sauce — ready in 20 minutes.',
+ prep:'5 min', cook:'20 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['2 cans butter beans, drained','4 garlic cloves, minced','½ cup sun-dried tomatoes, chopped','1 cup vegetable broth','½ cup coconut cream or cashew cream','2 tbsp nutritional yeast','1 tsp Italian seasoning','Red pepper flakes, salt, pepper','Fresh basil to serve'],
+ steps:['Sauté garlic in a splash of broth or oil until fragrant. Add sun-dried tomatoes and cook 2 minutes.','Add butter beans, broth, coconut cream, nutritional yeast, and seasoning. Simmer 10–15 minutes.','Taste and adjust salt. Serve with crusty bread or over grains, topped with fresh basil.']},
+
+{id:'b26', cat:'Dinner', emoji:'🍝', title:'Walnut Pasta',
+ desc:'A Sicilian-style walnut sauce — rich, earthy, and ready in under 20 minutes.',
+ prep:'10 min', cook:'15 min', servings:'4 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'',
+ ingredients:['12 oz pasta','1½ cups walnuts, toasted','3 garlic cloves','¼ cup nutritional yeast or vegan parmesan','½ cup plant-based milk or pasta water','2 tbsp olive oil or broth','Salt, black pepper, red pepper flakes','Fresh parsley to serve'],
+ steps:['Cook pasta in salted water, reserving 1 cup pasta water.','Blend walnuts, garlic, nutritional yeast, and milk until a thick paste forms.','Thin walnut sauce with pasta water until creamy and pourable. Season with salt, pepper, and red pepper flakes.','Toss hot pasta with walnut sauce, adding more pasta water as needed. Serve topped with parsley.']},
+
+{id:'b27', cat:'Dinner', emoji:'🥕', title:'Sweet & Sour Cauliflower',
+ desc:'Crispy cauliflower tossed in a tangy sweet-and-sour glaze — a crowd-pleasing weeknight dinner.',
+ prep:'15 min', cook:'25 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['1 head cauliflower, cut into florets','2 tbsp cornstarch','Salt, pepper','Sweet & Sour Sauce: ¼ cup ketchup, 3 tbsp rice vinegar, 2 tbsp soy sauce, 2 tbsp maple syrup, 1 tsp garlic powder'],
+ steps:['Toss cauliflower with cornstarch, salt, and pepper. Roast at 425°F for 20–25 minutes until crispy.','Whisk together sauce ingredients in a small saucepan. Simmer 5 minutes until slightly thickened.','Toss roasted cauliflower in sauce and serve over rice with scallions and sesame seeds.']},
+
+{id:'b28', cat:'Dinner', emoji:'🧀', title:'Mac & Cheese (Vegan)',
+ desc:'Creamy, cashew-based vegan mac and cheese — kids approved.',
+ prep:'15 min', cook:'20 min', servings:'4–6 servings',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['12 oz macaroni or pasta','1 cup raw cashews, soaked','¼ cup nutritional yeast','1 tbsp lemon juice','1 tsp garlic powder','1 tsp onion powder','½ tsp turmeric (for color)','Salt, pepper','1–1½ cups pasta water to thin'],
+ steps:['Cook pasta. Reserve 1½ cups pasta water before draining.','Blend soaked cashews, nutritional yeast, lemon juice, garlic powder, onion powder, and turmeric with ½ cup pasta water until completely smooth.','Pour sauce over drained pasta. Add pasta water until it reaches a creamy coating consistency. Season and serve immediately.']},
+
+{id:'b29', cat:'Dinner', emoji:'🥥', title:'Coconut Rice with Tofu',
+ desc:'Fragrant coconut rice topped with marinated baked tofu — simple and satisfying.',
+ prep:'15 min', cook:'30 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['1.5 cups jasmine rice','1 can coconut milk + enough water to equal 2.25 cups liquid','Pinch of salt','1 block tofu, pressed and cubed','3 tbsp soy sauce or tamari','1 tbsp sesame oil','1 tbsp maple syrup','Cucumber, scallions, sesame seeds to serve'],
+ steps:['Cook rice in coconut milk-water mixture with salt using rice cooker or stovetop.','Marinate tofu cubes in soy sauce, sesame oil, and maple syrup for 15+ minutes.','Bake tofu at 400°F for 25 minutes, flipping halfway, until golden.','Serve coconut rice topped with tofu, cucumber, scallions, and sesame seeds.']},
+
+{id:'b30', cat:'Dinner', emoji:'🥢', title:'Vietnamese Braised Mushrooms & Tofu',
+ desc:'Savory, caramel-braised mushrooms and tofu — intensely flavored over steamed rice.',
+ prep:'15 min', cook:'25 min', servings:'4 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'Use ½ the sugar called for in the recipe.',
+ ingredients:['1 block firm tofu, pressed and cubed','300g shiitake or mixed mushrooms','2 shallots, sliced','3 garlic cloves, minced','2 tbsp soy sauce','1 tbsp caramel or coconut sugar (½ of recipe amount)','1 tbsp fish sauce substitute or more soy sauce','Black pepper, chili','Scallions and cilantro to finish'],
+ steps:['Make a light caramel with a small amount of sugar in a dry pan until amber.','Add shallots, garlic, and mushrooms. Toss to coat and cook 5 minutes.','Add tofu, soy sauce, and a splash of water. Braise over medium-low heat 15 minutes, turning tofu occasionally.','Season with pepper and chili. Serve over rice with scallions and cilantro.']},
+
+{id:'b31', cat:'Dinner', emoji:'🫘', title:'White Velvet Soup',
+ desc:'A silky, elegant white bean soup — simple, minimal, and deeply comforting.',
+ prep:'10 min', cook:'25 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'Use the can of white beans from the pantry.',
+ ingredients:['2 cans white beans (cannellini), drained','1 onion, roughly chopped','4 garlic cloves','3 cups vegetable broth','½ cup coconut cream or cashew cream','1 tbsp olive oil or broth','Salt, white pepper','Fresh thyme or rosemary'],
+ steps:['Sauté onion and garlic in oil or broth until very soft, about 10 minutes.','Add white beans, broth, and herbs. Simmer 15 minutes.','Blend completely until silky smooth. Return to pot and stir in coconut or cashew cream.','Season with salt and white pepper. Serve with a drizzle of olive oil.']},
+
+{id:'b32', cat:'Dinner', emoji:'🫘', title:'Yogurty Beans with Pistachio Dukkah',
+ desc:'Creamy spiced white beans on tangy yogurt, topped with crunchy pistachio dukkah.',
+ prep:'15 min', cook:'20 min', servings:'4 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'Used dried herbs, tofu feta, and Kite Hill yogurt. Delicious!',
+ ingredients:['2 cans white beans','Kite Hill plant-based yogurt','Tofu feta (see Basics section)','Pistachio dukkah: ¼ cup pistachios, 2 tbsp sesame seeds, 1 tsp coriander, 1 tsp cumin — toast and crush','Olive oil or broth','Lemon, salt, red pepper flakes'],
+ steps:['Warm beans in a pan with a splash of broth, cumin, and red pepper flakes. Season well.','Toast pistachios, sesame seeds, coriander, and cumin in a dry pan until fragrant. Roughly crush.','Spread Kite Hill yogurt on a plate. Spoon warm beans on top. Crumble tofu feta over everything.','Scatter dukkah generously over the top. Drizzle with olive oil and a squeeze of lemon.']},
+
+{id:'b33', cat:'Dinner', emoji:'🌯', title:'Spring Rolls with Peanut Sauce',
+ desc:'Fresh rice paper rolls stuffed with whatever is in the fridge, with a creamy peanut dipping sauce.',
+ prep:'25 min', cook:'', servings:'4 servings',
+ source:'',
+ notes:'',
+ ingredients:['Rice paper wrappers','Rice vermicelli noodles, cooked and cooled','Cucumber, julienned','Avocado, sliced','Shredded cabbage or lettuce','Fresh mint or cilantro','Peanut sauce: ¼ cup peanut butter, 2 tbsp soy sauce, 1 tbsp lime juice, 1 tbsp maple syrup, sriracha, water to thin'],
+ steps:['Soak each rice paper in warm water 10–15 seconds until pliable. Lay flat.','Layer fillings in the center: noodles, cucumber, avocado, cabbage, herbs.','Fold in sides and roll up tightly. Repeat.','Whisk together peanut sauce ingredients, thinning with water to a dipping consistency.']},
+
+// ══ BREAKFAST ══
+{id:'b34', cat:'Breakfast', emoji:'🥞', title:'Green Pancakes',
+ desc:'Spinach-blended banana and egg pancakes — naturally sweet, sneakily nutritious.',
+ prep:'10 min', cook:'15 min', servings:'8–10 pancakes',
+ source:'',
+ notes:'Use a non-stick pan with very little oil. Make slightly larger crêpe-like pancakes and use a very thin spatula to flip.',
+ ingredients:['2 ripe bananas','2 eggs','1 large handful baby spinach','Pinch of salt','Optional: pinch of cinnamon'],
+ steps:['Combine bananas, eggs, spinach, and salt in a blender. Blend until perfectly smooth.','Heat a nonstick pan over medium heat with a tiny amount of oil.','Pour batter into larger, crêpe-sized pancakes. Cook until bubbles form and edges look set, then carefully flip with a very thin spatula.','Serve immediately.']},
+
+{id:'b35', cat:'Breakfast', emoji:'🌯', title:'Breakfast Nachos',
+ desc:'A fun, loaded breakfast plate with all the usual suspects.',
+ prep:'15 min', cook:'20 min', servings:'4 servings',
+ source:'',
+ notes:'No potatoes. Skip the avocado salsa — make Pico de Gallo instead.',
+ ingredients:['Corn tortilla chips or torn corn tortillas','Black beans, seasoned','Scrambled tofu or eggs','Fresh Pico de Gallo: tomato, red onion, jalapeño, cilantro, lime juice','Salsa, hot sauce','Cashew sour cream or Kite Hill yogurt'],
+ steps:['Make Pico de Gallo: combine diced tomato, red onion, jalapeño, cilantro, lime juice, and salt. Set aside.','Season and warm black beans.','Scramble tofu with turmeric, garlic, and soy sauce (or scramble eggs).','Layer chips on plates. Top with beans, scrambled tofu/eggs, pico, and a dollop of cashew cream.']},
+
+{id:'b36', cat:'Breakfast', emoji:'🥞', title:'Chickpea Omelettes',
+ desc:'Savory, protein-rich omelettes made with chickpea flour — no eggs required.',
+ prep:'10 min', cook:'15 min', servings:'2–3 omelettes',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['1 cup chickpea flour','¼ cup nutritional yeast','½ tsp turmeric','½ tsp garlic powder','½ tsp onion powder','Salt and pepper','1 cup water','Fillings: sautéed spinach, mushrooms, onion, or whatever is in the fridge'],
+ steps:['Whisk together chickpea flour, nutritional yeast, spices, salt, and water until smooth. Let rest 5 minutes.','Prepare fillings by sautéing any vegetables.','Pour a thin layer of batter into a lightly oiled nonstick pan. Cook over medium heat 3–4 minutes until the edges look dry and the center sets.','Add fillings to one half and fold over. Slide onto plate.']},
+
+{id:'b37', cat:'Breakfast', emoji:'🌾', title:'Overnight Oats',
+ desc:'No-cook oats ready by morning — creamy, filling, and infinitely customizable.',
+ prep:'5 min', cook:'', servings:'1–2 servings',
+ source:'',
+ notes:'Stir very well — otherwise chia seeds clump. No need to cover. Add a mashed banana if we have browning ones.',
+ ingredients:['¾ cup rolled oats','¼ cup chia and hemp seed mix','1 mashed banana (if available/browning)','Cinnamon','Oatly oat milk to cover'],
+ steps:['Combine oats, chia and hemp seeds, mashed banana (if using), and a shake of cinnamon in a jar or bowl.','Pour enough Oatly to cover completely. Stir very well to prevent chia clumping.','Refrigerate overnight. Stir before serving. Top with fruit or nut butter.']},
+
+{id:'b38', cat:'Breakfast', emoji:'🍳', title:'Farina',
+ desc:'Warm, creamy farina made with Oatly — thickens as it cools, thin with hot water as needed.',
+ prep:'2 min', cook:'8 min', servings:'2 servings',
+ source:'',
+ notes:'Thickens a lot when it cools — thin with hot water or Oatly as needed.',
+ ingredients:['3 parts Oatly oat milk','1 part farina','1 tbsp maple syrup','~1 tsp cinnamon'],
+ steps:['Bring Oatly to a simmer in a small saucepan.','Slowly whisk in the farina, maple syrup, and cinnamon.','Turn off heat once it just starts to thicken — it will continue thickening as it cools.','Serve immediately, or thin with hot water or more Oatly if needed.']},
+
+{id:'b39', cat:'Breakfast', emoji:'🥣', title:'Spanish Omelette',
+ desc:'A simple Spanish tortilla — golden outside, creamy inside.',
+ prep:'10 min', cook:'20 min', servings:'4 servings',
+ source:'',
+ notes:'Oat milk is fine in the omelette. No sauce needed.',
+ ingredients:['6 eggs','2 large potatoes, thinly sliced and cooked until tender','1 onion, thinly sliced','Splash of oat milk','Salt and pepper','Olive oil or broth for cooking'],
+ steps:['Cook onion in a splash of oil or broth until soft. Add pre-cooked potato slices and stir gently.','Whisk eggs with oat milk, salt, and pepper. Pour over the potato mixture.','Cook on medium-low heat until the edges are set, about 8–10 minutes.','Flip the omelette carefully and cook the other side 3–5 minutes. Slide onto a plate and let rest before cutting.']},
+
+// ══ SOUPS ══
+{id:'b40', cat:'Soups', emoji:'🍵', title:'Split Pea Soup',
+ desc:'A hearty, thick pea soup loaded with carrots, celery, and garlic — made from scratch.',
+ prep:'15 min', cook:'1.5–2 hours', servings:'6–8 servings',
+ source:'',
+ notes:'Rinse peas well. Blend only half the soup to keep some texture.',
+ ingredients:['~4 cups split peas, rinsed well','1 onion, chopped','6–8 carrots, chopped','10 whole garlic cloves','All celery, chopped','8 black peppercorns','Salted water to cover','Salt to taste'],
+ steps:['Simmer split peas in salted water until starting to soften, 1–2 hours, adding water as needed.','Add chopped onion, carrots, garlic, celery, and peppercorns. Simmer until vegetables are soft but not soggy.','Blend half the soup until super smooth. Return everything to the pot and stir together.','Taste and adjust salt.']},
+
+{id:'b41', cat:'Soups', emoji:'🍅', title:'Creamy Tomato Soup (for Tide) + Croutons',
+ desc:'A silky cashew-blended tomato soup — Tide\'s favorite. Top with homemade croutons.',
+ prep:'10 min', cook:'20 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'This one is for Tide specifically.',
+ ingredients:['1 yellow onion, chopped','5 cloves garlic, minced','1 tsp dried thyme','1 tsp dried rosemary','½ tsp red pepper flakes (optional)','4 cups vegetable broth','1 can (25 oz) crushed tomatoes','2 tbsp tomato paste (if we have it)','½ tsp salt, black pepper','½ cup whole unroasted cashews'],
+ steps:['Preheat a 4-quart pot over medium heat. Sauté onion, garlic, thyme, rosemary, and red pepper flakes in broth until softened, about 3 minutes.','Add remaining broth, canned tomatoes, tomato paste, and pepper. Simmer aggressively for 10 minutes.','Transfer soup and cashews to a blender. Blend until completely smooth and creamy.','Return to pot, season with salt, and serve with homemade croutons.']},
+
+{id:'b42', cat:'Soups', emoji:'🥦', title:'Broccoli Cheddar Soup (Vegan)',
+ desc:'A velvety, plant-based take on broccoli cheddar — blended silky smooth.',
+ prep:'15 min', cook:'25 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'No oil — sauté in broth or water. Purée until silky smooth.',
+ ingredients:['2 heads broccoli, chopped','1 onion, diced','3 garlic cloves','Vegetable broth for sautéing and simmering','¾ cup raw cashews','¼ cup nutritional yeast','1 tsp Dijon mustard','Lemon juice, salt, pepper','Smoked paprika for serving'],
+ steps:['Sauté onion and garlic in broth over medium heat until soft.','Add broccoli and enough broth to cover. Simmer until broccoli is very tender, about 15 minutes.','Add cashews, nutritional yeast, and Dijon. Blend everything until completely silky smooth.','Return to pot, season with lemon juice, salt, and pepper. Serve with a dusting of smoked paprika.']},
+
+{id:'b43', cat:'Soups', emoji:'🫘', title:'Red Curry Lentil Soup',
+ desc:'A warming, aromatic lentil soup with red curry paste and coconut milk.',
+ prep:'10 min', cook:'30 min', servings:'4–6 servings',
+ source:'https://minimalistbaker.com',
+ notes:'Use vegetable broth instead of water. Skip the cayenne.',
+ ingredients:['1½ cups red lentils, rinsed','1 onion, diced','4 garlic cloves','1 tbsp fresh ginger, grated','2 tbsp red curry paste','1 can coconut milk','4 cups vegetable broth (not water)','Lime juice, salt','Cilantro and coconut cream to serve'],
+ steps:['Sauté onion, garlic, and ginger in a splash of broth until soft. Add curry paste and cook 2 minutes.','Add red lentils, coconut milk, and vegetable broth. Bring to a boil.','Reduce heat and simmer 20–25 minutes until lentils are fully broken down and soup is thick.','Season with lime juice and salt. Serve topped with cilantro and a drizzle of coconut cream.']},
+
+{id:'b44', cat:'Soups', emoji:'🍲', title:'Veggie White Bean Soup',
+ desc:'A robust Italian-style white bean and vegetable soup, thickened by puréeing a portion.',
+ prep:'15 min', cook:'30 min', servings:'6 servings',
+ source:'https://minimalistbaker.com',
+ notes:'No oil — sauté in broth or water. Use 3x the garlic plus basil (read notes on the recipe). Double the carrots and celery. Purée ⅓ of the soup and add it back to the pot to thicken the broth.',
+ ingredients:['2 cans white beans (cannellini)','1 onion, diced','6+ garlic cloves (3x the recipe)','4 carrots, chopped (2x)','4 celery stalks, chopped (2x)','Vegetable broth for sautéing and simmering','1 can diced tomatoes','1 tsp Italian seasoning','Lots of fresh basil','Salt, pepper, red pepper flakes'],
+ steps:['Sauté onion, garlic, carrots, and celery in broth over medium heat until softened.','Add white beans, diced tomatoes, Italian seasoning, and enough broth to generously cover. Simmer 20 minutes.','Purée ⅓ of the soup until smooth, then stir back into the pot to thicken the broth.','Add fresh basil and season well with salt, pepper, and red pepper flakes.']},
+
+{id:'b45', cat:'Soups', emoji:'🍛', title:'Red Lentil Daal',
+ desc:'A fragrant, warming red lentil daal — simple, nourishing, and deeply flavorful.',
+ prep:'10 min', cook:'30 min', servings:'4 servings',
+ source:'https://minimalistbaker.com',
+ notes:'Sauté in a touch of vegetable broth or water — no oil, no sweetener.',
+ ingredients:['1½ cups red lentils, rinsed','1 onion, diced','4 garlic cloves, minced','1 tbsp fresh ginger, grated','1 tsp cumin seeds','1 tsp turmeric','1 tsp garam masala','1 can diced tomatoes','3–4 cups vegetable broth','Salt, lemon juice, cilantro'],
+ steps:['Sauté cumin seeds in vegetable broth over medium heat until fragrant. Add onion, garlic, and ginger and cook until soft.','Add turmeric, garam masala, and diced tomatoes. Cook 3 minutes.','Add red lentils and broth. Bring to a boil, then simmer 20–25 minutes until lentils dissolve.','Season with salt and a squeeze of lemon. Serve with rice or naan, topped with fresh cilantro.']},
+
+{id:'b46', cat:'Soups', emoji:'🍛', title:'Curried Tortellini Lentil Soup',
+ desc:'A hearty, comforting soup with lentils, curry spices, and pillowy tortellini.',
+ prep:'10 min', cook:'30 min', servings:'4–6 servings',
+ source:'https://minimalistbaker.com',
+ notes:'No oil.',
+ ingredients:['1 cup green or brown lentils','1 package vegan tortellini','1 onion, diced','3 garlic cloves','1 tbsp curry powder','1 can diced tomatoes','5 cups vegetable broth','2 cups spinach','Salt, pepper, lemon juice'],
+ steps:['Sauté onion and garlic in a splash of broth over medium heat until soft. Add curry powder and cook 1 minute.','Add lentils, diced tomatoes, and broth. Simmer 20 minutes until lentils are tender.','Add tortellini and cook according to package directions.','Stir in spinach until wilted. Season with salt, pepper, and a squeeze of lemon.']},
+
+// ══ SNACKS & SWEETS ══
+{id:'b47', cat:'Snacks & Sweets', emoji:'🍌', title:"Tiger's Muffins (PB Banana Egg)",
+ desc:'Three-ingredient muffins — naturally sweet, gluten-free, and the kids love them.',
+ prep:'5 min', cook:'20–25 min', servings:'12 muffins',
+ source:'',
+ notes:'Named after Tiger. Super quick and always a hit.',
+ ingredients:['2 ripe bananas','2 eggs','1 cup peanut butter','1 tsp vanilla extract','1 tsp cinnamon','1 tsp baking powder'],
+ steps:['Preheat oven to 350°F. Line a muffin tin with liners.','Mash bananas well. Mix in eggs, peanut butter, vanilla, cinnamon, and baking powder until combined.','Fill muffin cups about ¾ full.','Bake 20–25 minutes until a toothpick comes out clean.']},
+
+{id:'b48', cat:'Snacks & Sweets', emoji:'🍫', title:'Dark Chocolate Energy Balls',
+ desc:'Fudgy, no-bake energy balls loaded with dates, cacao, and seeds.',
+ prep:'15 min', cook:'', servings:'15–18 balls',
+ source:'https://minimalistbaker.com',
+ notes:'Use the chia/hemp seed mix (small glass jar in pantry). Use pitted dates.',
+ ingredients:['1 cup pitted dates','1 cup rolled oats','2 tbsp cacao powder','2 tbsp chia/hemp seed mix','¼ cup almond butter or peanut butter','Pinch of salt'],
+ steps:['Process dates in a food processor until a sticky paste forms.','Add oats, cacao powder, nut butter, seeds, and salt. Process until the mixture holds together.','Roll into balls and refrigerate at least 30 minutes. Store in the fridge.']},
+
+{id:'b49', cat:'Snacks & Sweets', emoji:'🥜', title:'PB&J Energy Bites',
+ desc:'Chewy, no-bake bites with peanut butter and jam swirl.',
+ prep:'15 min', cook:'', servings:'15–18 bites',
+ source:'https://minimalistbaker.com',
+ notes:"Use Tom's chocolate protein powder.",
+ ingredients:['1 cup rolled oats','½ cup peanut butter','¼ cup maple syrup (or to taste)','1 scoop chocolate protein powder','Pinch of salt','Raspberry or strawberry jam for swirling in'],
+ steps:['Mix oats, peanut butter, maple syrup, protein powder, and salt until a sticky dough forms.','Roll into balls. Press a small indentation into each and fill with a small dollop of jam.','Refrigerate 30 minutes to firm up. Store in the fridge.']},
+
+{id:'b50', cat:'Snacks & Sweets', emoji:'🌴', title:'Coconut Date Balls (for Navy and West)',
+ desc:'Simple, naturally sweet date and coconut balls — Navy and West\'s favorite snack.',
+ prep:'15 min', cook:'', servings:'15–20 balls',
+ source:'',
+ notes:'Use pecans from the glass jar first, then refill with the bag of roasted pecans. Add a shake of chia seeds. Use coconut from the pantry.',
+ ingredients:['1 cup pitted Medjool dates','½ cup pecans (from glass jar first)','½ cup shredded coconut, plus more for rolling','Shake of chia seeds','Pinch of salt'],
+ steps:['Process pecans in a food processor until roughly chopped. Add dates, coconut, chia seeds, and salt.','Process until the mixture sticks together when pressed.','Roll into small balls, then roll in extra shredded coconut to coat.','Refrigerate until firm. Store in an airtight container.']},
+
+{id:'b51', cat:'Snacks & Sweets', emoji:'🍌', title:'Almond Flour Banana Bread (No Added Sugar)',
+ desc:'Incredibly moist and fudgy — no added sugar, just ripe bananas. Super moist inside.',
+ prep:'10 min', cook:'50–55 min', servings:'1 loaf',
+ source:'',
+ notes:'It is SUPER moist and fudgy — let it cool completely before cutting or it will fall apart.',
+ ingredients:['2 cups fine almond flour','3 overripe bananas','2 eggs (or 2 flax eggs)','1 tbsp baking powder','½ tsp salt','½ tsp pure vanilla extract'],
+ steps:['Preheat oven to 325°F. Grease or line a 9×5 loaf pan.','Mash bananas well. Stir in eggs, almond flour, baking powder, salt, and vanilla until smooth.','Pour into the loaf pan.','Bake on the center rack 50–55 minutes. Let sit until completely cool before slicing.']},
+
+{id:'b52', cat:'Snacks & Sweets', emoji:'🍌', title:'Banana Bread (Classic)',
+ desc:'Our go-to banana bread — olive oil, a little applesauce, and chocolate chips.',
+ prep:'10 min', cook:'55–60 min', servings:'1 loaf',
+ source:'',
+ notes:'Use the generic olive oil bottle, not the gold label. Replace about half the oil with applesauce. Add ¼ cup chocolate chips. Use very brown bananas.',
+ ingredients:['3 very ripe bananas','⅓ cup generic olive oil + ⅓ cup applesauce','¾ cup sugar','1 egg','1 tsp vanilla','1½ cups flour','1 tsp baking soda','Pinch of salt','¼ cup chocolate chips'],
+ steps:['Preheat oven to 350°F. Mash bananas.','Mix in olive oil, applesauce, sugar, egg, and vanilla. Stir in flour, baking soda, and salt until just combined. Fold in chocolate chips.','Pour into a greased loaf pan. Bake 55–60 minutes until a toothpick comes out clean. Cool before slicing.']},
+
+{id:'b53', cat:'Snacks & Sweets', emoji:'🎂', title:'Vanilla Cake (GF, Oil-Free)',
+ desc:'A gluten-free, oil-free vanilla cake that even Tom loves.',
+ prep:'15 min', cook:'30 min', servings:'8–10 slices',
+ source:'https://minimalistbaker.com',
+ notes:'GF, oil-free, and Tom loves it.',
+ ingredients:['2 cups gluten-free flour blend','1½ tsp baking powder','½ tsp baking soda','¼ tsp salt','¾ cup applesauce (replaces oil)','¾ cup maple syrup','2 flax eggs','1 tsp vanilla extract','¾ cup plant milk'],
+ steps:['Preheat oven to 350°F. Whisk together dry ingredients. Whisk together wet ingredients separately.','Combine wet and dry until just mixed.','Pour into a greased cake pan. Bake 25–30 minutes until a toothpick comes out clean. Cool completely before serving.']},
+
+{id:'b54', cat:'Snacks & Sweets', emoji:'🍫', title:'Tahini Sweet Potato Brownies',
+ desc:'Fudgy, naturally sweetened brownies with roasted sweet potato and a tahini swirl.',
+ prep:'20 min', cook:'25 min', servings:'12 brownies',
+ source:'https://minimalistbaker.com',
+ notes:'Use the sweet potato in the fridge. Sub GF flour for whole wheat — bag is in the 4th door of the pantry.',
+ ingredients:['1 cup roasted sweet potato, mashed','½ cup tahini, divided','⅓ cup maple syrup','2 flax eggs','1 tsp vanilla','⅓ cup GF flour (from 4th pantry door)','¼ cup cacao powder','½ tsp baking powder','Pinch of salt'],
+ steps:['Preheat oven to 350°F. Combine sweet potato, ¼ cup tahini, maple syrup, flax eggs, and vanilla.','Stir in flour, cacao, baking powder, and salt until smooth.','Pour into a greased 8×8 pan. Dollop remaining tahini on top and swirl with a knife.','Bake 22–25 minutes. Cool completely before cutting.']},
+
+{id:'b55', cat:'Snacks & Sweets', emoji:'🌾', title:'Aquafaba Granola',
+ desc:'Crunchy, clumpy granola using whipped aquafaba instead of oil — light and crispy.',
+ prep:'10 min', cook:'30 min', servings:'About 4 cups',
+ source:'https://minimalistbaker.com',
+ notes:'Pro tip: Put aquafaba in Vitamix for a minute before hand-whisking. Skip the coconut sugar. Use ½ maple syrup (about ⅛ cup). Use chopped walnuts and raisins. Light on coconut. Add hemp seeds/hearts (white seeds in the glass container).',
+ ingredients:['3 cups rolled oats','1 cup aquafaba (liquid from can of chickpeas)','⅛ cup maple syrup','1 tsp vanilla','1 tsp cinnamon','Chopped walnuts','Raisins','Small amount of shredded coconut','Hemp seeds/hearts'],
+ steps:['Preheat oven to 325°F. Blend aquafaba in Vitamix 1 minute, then whisk by hand until foamy.','Fold in maple syrup, vanilla, cinnamon, oats, walnuts, and a small amount of coconut.','Spread on a lined baking sheet. Bake 25–30 minutes, stirring halfway, until golden and clumpy.','Cool completely before adding raisins and hemp seeds. Store in an airtight container.']},
+
+{id:'b56', cat:'Snacks & Sweets', emoji:'🎃', title:'Pumpkin Muffins',
+ desc:'Spiced, moist pumpkin muffins — a fall staple.',
+ prep:'15 min', cook:'22 min', servings:'12 muffins',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['1 can pumpkin purée','½ cup maple syrup','2 flax eggs','¼ cup melted coconut oil or applesauce','1 tsp vanilla','1½ cups oat flour','1 tsp cinnamon','½ tsp nutmeg','¼ tsp cloves','1 tsp baking soda','Pinch of salt'],
+ steps:['Preheat oven to 375°F. Line a muffin tin.','Whisk together wet ingredients. Stir in dry ingredients until just combined.','Fill muffin cups ¾ full. Bake 20–22 minutes until a toothpick comes out clean.','Cool in the pan 10 minutes before transferring.']},
+
+{id:'b57', cat:'Snacks & Sweets', emoji:'🥕', title:'Carrot Bread (Dates, Banana, Ginger)',
+ desc:'A naturally sweetened quick bread loaded with carrots, ginger, and dates.',
+ prep:'15 min', cook:'55 min', servings:'1 loaf',
+ source:'https://minimalistbaker.com',
+ notes:'Works with whole wheat flour instead of spelt flour too.',
+ ingredients:['1½ cups grated carrot','2 ripe bananas, mashed','½ cup chopped dates','1 tbsp fresh ginger, grated','2 eggs or flax eggs','¼ cup coconut oil or applesauce','1½ cups whole wheat flour (works instead of spelt)','1 tsp cinnamon','1 tsp baking soda','Pinch of salt'],
+ steps:['Preheat oven to 350°F. Combine bananas, eggs, oil, ginger, and dates. Stir in carrots.','Mix in flour, cinnamon, baking soda, and salt until just combined.','Pour into a greased loaf pan. Bake 50–55 minutes. Cool fully before slicing.']},
+
+{id:'b58', cat:'Snacks & Sweets', emoji:'🍫', title:'Hot Chocolate',
+ desc:'A rich, cinnamon-kissed hot chocolate made with oat milk and raw cacao.',
+ prep:'2 min', cook:'8 min', servings:'4 cups',
+ source:'',
+ notes:'',
+ ingredients:['4 cups Oatly oat milk','3 tbsp raw cacao powder','2 tbsp pure maple syrup','¾ tsp vanilla extract','Pinch of sea salt'],
+ steps:['Warm Oatly in a saucepan over medium heat — do not boil.','Whisk in cacao powder, maple syrup, vanilla, and salt until fully dissolved and smooth.','Taste and adjust sweetness. Serve immediately.']},
+
+// ══ BASICS ══
+{id:'b59', cat:'Basics', emoji:'🧊', title:'Bragg\'s Tofu',
+ desc:'Simple marinated and baked tofu — the house protein. Add to anything.',
+ prep:'15 min press + 10 min marinate', cook:'25 min', servings:'1 block',
+ source:'',
+ notes:'',
+ ingredients:['1 block firm tofu','Bragg\'s liquid aminos to coat'],
+ steps:['Drain tofu and press it: wrap in a clean dish towel between two plates for about 15 minutes.','Cut into cubes. Toss in Bragg\'s and let marinate about 10 minutes.','Spread on a lined baking sheet. Bake at 350°F for about 25 minutes until slightly golden.']},
+
+{id:'b60', cat:'Basics', emoji:'🥓', title:'Tempeh Bacon',
+ desc:'Smoky, savory tempeh strips — crispy edges, chewy center. Great on everything.',
+ prep:'5 min + marinating', cook:'20–25 min', servings:'1 package',
+ source:'',
+ notes:'',
+ ingredients:['1 package tempeh, thinly sliced','Marinade: 3 tbsp Bragg\'s','2 tbsp lemon juice','2 garlic cloves, minced','1 tsp liquid smoke','1 tsp maple syrup'],
+ steps:['Slice tempeh as thinly as possible.','Whisk together marinade ingredients. Toss tempeh slices in marinade and let sit at least 15 minutes.','Spread on a lined baking sheet. Bake at 375°F for 20–25 minutes, flipping halfway, until edges just start to brown.']},
+
+{id:'b61', cat:'Basics', emoji:'🧀', title:"Mommy's Cheese",
+ desc:'A silky, mild cashew cheese — the household staple. Keeps well in the fridge.',
+ prep:'10 min', cook:'', servings:'About 1½ cups',
+ source:'',
+ notes:'',
+ ingredients:['1 cup cashews','1 heaping tbsp chickpea miso','1 heaping tbsp lemon juice','Heaping ¼ cup nutritional yeast','1 cup + 2–3 tbsp warm water'],
+ steps:['Combine all ingredients in a high-speed blender.','Blend until silky smooth, stopping to scrape down sides as needed.','Taste and adjust lemon or salt. Store in the fridge up to a week.']},
+
+{id:'b62', cat:'Basics', emoji:'🧀', title:'Tofu Feta',
+ desc:'Crumbly, tangy tofu feta — awesome and keeps forever in the fridge.',
+ prep:'10 min + marinating', cook:'', servings:'About 1½ cups',
+ source:'https://minimalistbaker.com',
+ notes:'Awesome and keeps forever in the fridge.',
+ ingredients:['1 block extra-firm tofu, pressed','3 tbsp lemon juice','2 tbsp apple cider vinegar','2 tbsp olive oil','1 tbsp nutritional yeast','1 tsp dried oregano','½ tsp salt'],
+ steps:['Press tofu well. Crumble into small, irregular pieces into a jar or container.','Whisk together lemon juice, ACV, olive oil, nutritional yeast, oregano, and salt.','Pour marinade over tofu. Stir gently to coat. Refrigerate at least 1 hour — better overnight.']},
+
+{id:'b63', cat:'Basics', emoji:'🧀', title:'Cottage Cheese (Tofu)',
+ desc:'A plant-based cottage cheese using silken and firm tofu — creamy and protein-rich.',
+ prep:'5 min', cook:'', servings:'About 1½ cups',
+ source:'',
+ notes:'Use equal parts silken and extra-firm tofu. Add black pepper and an extra tbsp of nutritional yeast.',
+ ingredients:['Equal parts silken tofu and extra-firm tofu','1–2 tbsp nutritional yeast','Black pepper to taste','Pinch of salt','Splash of lemon juice'],
+ steps:['Crumble or roughly mash the extra-firm tofu into a bowl.','Blend silken tofu until smooth. Fold into the crumbled firm tofu.','Add nutritional yeast, an extra tablespoon, salt, lemon, and lots of black pepper.','Stir and taste. Refrigerate until ready to use.']},
+
+{id:'b64', cat:'Basics', emoji:'🧀', title:'Vegan Parmesan',
+ desc:'A quick cashew-based parmesan — ready in 5 minutes and lasts for weeks.',
+ prep:'5 min', cook:'', servings:'About ¾ cup',
+ source:'https://minimalistbaker.com',
+ notes:'',
+ ingredients:['¾ cup raw cashews','3 tbsp nutritional yeast','¼ tsp garlic powder','¼ tsp salt'],
+ steps:['Add all ingredients to a food processor or blender.','Pulse until a fine, crumbly texture resembling parmesan forms. Do not over-process or it will become a paste.','Store in an airtight container in the fridge for up to 1 month.']},
+
+{id:'b65', cat:'Basics', emoji:'🍚', title:'Rice in the Rice Cooker',
+ desc:'The Fallows house method — perfectly cooked rice every time.',
+ prep:'2 min', cook:'~30 min', servings:'4–6 servings',
+ source:'',
+ notes:'2.5 cups water is too much — always use 2.25!',
+ ingredients:['1.5 cups rice','2.25 cups water (NOT 2.5 — too much!)','~1 cup frozen peas'],
+ steps:['Measure 1.5 cups rice into the rice cooker. Rinse if desired.','Add exactly 2.25 cups water and about 1 cup frozen peas.','Cook on standard setting. Fluff with a fork before serving.']},
+
+{id:'b66', cat:'Basics', emoji:'🍱', title:'Avocado Rolls (Maki)',
+ desc:'Homemade avocado maki rolls — simple enough for a weeknight.',
+ prep:'30 min', cook:'', servings:'4 rolls',
+ source:'',
+ notes:'Do NOT use regular white vinegar — rice vinegar only. Cool rice to room temperature before rolling.',
+ ingredients:['1.5 cups brown rice','2 tbsp rice vinegar','1 tsp sugar','Nori sheets','1–2 avocados, sliced','Soy sauce, pickled ginger, wasabi to serve'],
+ steps:['Cook brown rice. While still warm, stir in rice vinegar and sugar. Spread on a baking sheet to cool to room temperature.','Lay a nori sheet on a bamboo mat. Spread rice evenly, leaving a 1-inch border at the top.','Lay avocado slices in a line near the bottom. Roll tightly using the mat, pressing firmly.','Slice with a sharp wet knife. Serve with soy sauce, pickled ginger, and wasabi.']},
+
+{id:'b67', cat:'Basics', emoji:'🥗', title:'The Veggie Roll',
+ desc:'A quick, creamy wrap using Kite Hill cream cheese and whatever greens are in the fridge.',
+ prep:'5 min', cook:'', servings:'1–2 rolls',
+ source:'',
+ notes:'Mix Kite Hill cream cheese with whatever chopped greens we have on hand for filling.',
+ ingredients:['Large flour or spinach tortillas','Kite Hill cream cheese','Chopped mixed greens (whatever is in the fridge)','Optional: cucumber, shredded carrots, sprouts'],
+ steps:['Spread a generous amount of Kite Hill cream cheese on a tortilla.','Add chopped greens and any other fillings.','Roll up tightly and slice in half.']},
+
+{id:'b68', cat:'Dinner', emoji:'🍃', title:'Spinach Gomae',
+ desc:'Japanese-style sesame-dressed spinach — nutty, sweet, and deeply savory.',
+ prep:'10 min', cook:'5 min', servings:'2–3 servings',
+ source:'https://cooking.nytimes.com',
+ notes:'Make a double recipe if you have time.',
+ ingredients:['1 bunch mature spinach (8–10 oz), ends trimmed','3 tbsp toasted white sesame seeds','1 tbsp soy sauce','2 tsp sugar'],
+ steps:['Blanch spinach in boiling salted water for 30 seconds. Drain and immediately rinse under cold water.','Squeeze out as much water as possible. Roughly chop.','In a bowl, combine sesame seeds, soy sauce, and sugar. Add spinach and toss well.','Serve at room temperature or chilled.']},
+
+{id:'b69', cat:'Dinner', emoji:'🥬', title:'Lentil Pancakes',
+ desc:'Savory, protein-packed lentil pancakes — crispy edges, soft center.',
+ prep:'10 min + soak', cook:'20 min', servings:'8–10 pancakes',
+ source:'https://minimalistbaker.com',
+ notes:'Non-stick pan. Very little oil!',
+ ingredients:['1 cup red or yellow lentils, soaked 4+ hours','½ cup water','½ tsp cumin','½ tsp turmeric','¼ tsp coriander','Salt to taste','Optional: chopped cilantro or scallions'],
+ steps:['Drain soaked lentils. Blend with water, cumin, turmeric, coriander, and salt until smooth.','Heat a nonstick pan over medium with a tiny amount of oil.','Pour small rounds of batter. Cook 3–4 minutes per side until golden and cooked through.','Serve with chutney, yogurt, or any of the sauces in the Sauces section.']},
+
+{id:'b70', cat:'Snacks & Sweets', emoji:'🫐', title:'PB&J Muffins',
+ desc:'Peanut butter muffins with a jammy centre — a lunchbox hero.',
+ prep:'15 min', cook:'22 min', servings:'12 muffins',
+ source:'https://minimalistbaker.com',
+ notes:'Replace oil with mashed banana. Halve the maple syrup. Add 1 tbsp coconut sugar. Make simple chia jam for the filling.',
+ ingredients:['1½ cups oat flour','1 tsp baking powder','Pinch of salt','½ cup peanut butter','1 mashed banana (replaces oil)','¼ cup maple syrup (halved from original)','1 tbsp coconut sugar','1 flax egg','¾ cup plant milk','Chia jam for filling (chia seeds + mashed berries + maple syrup)'],
+ steps:['Preheat oven to 375°F. Make chia jam: mix mashed berries with chia seeds and a drizzle of maple syrup. Let set 10 minutes.','Mix all muffin ingredients until just combined.','Fill muffin cups halfway, add a spoonful of chia jam in the center, and top with more batter.','Bake 20–22 minutes until golden.']},
+
+{id:'b71', cat:'Snacks & Sweets', emoji:'🍫', title:'Superfood Energy Bars',
+ desc:'Dense, date-based energy bars loaded with seeds, nuts, and superfoods.',
+ prep:'20 min', cook:'', servings:'12 bars',
+ source:'https://minimalistbaker.com',
+ notes:'A drizzle of melted chocolate on top will make these disappear. Tide didn\'t like them — Navy and West loved them.',
+ ingredients:['1 cup pitted dates','½ cup almonds','¼ cup cashews','2 tbsp chia seeds','2 tbsp hemp seeds','2 tbsp cacao nibs','2 tbsp pumpkin seeds','1 tbsp coconut oil','Pinch of salt','Melted dark chocolate for drizzling'],
+ steps:['Process dates until a sticky paste forms.','Add nuts, seeds, cacao nibs, coconut oil, and salt. Process until mixture sticks together.','Press firmly into a lined 8×8 pan. Drizzle melted chocolate over the top.','Refrigerate 1 hour until firm. Cut into bars and store in the fridge.']},
+
+{id:'b72', cat:'Snacks & Sweets', emoji:'🌾', title:'Zucchini Bread (Nora Cooks)',
+ desc:'A moist, lightly spiced zucchini bread — works equally well as muffins.',
+ prep:'15 min', cook:'55 min', servings:'1 loaf or 12 muffins',
+ source:'https://noracooks.com',
+ notes:'Halve the sugar. Use ½ oil + ½ applesauce. Add crushed walnuts. Works well as muffins too.',
+ ingredients:['2 cups grated zucchini (squeezed dry)','½ cup sugar (halved from original)','¼ cup oil + ¼ cup applesauce','2 eggs or flax eggs','1 tsp vanilla','1½ cups flour','1 tsp cinnamon','½ tsp baking soda','½ tsp baking powder','¼ tsp salt','½ cup crushed walnuts'],
+ steps:['Preheat oven to 350°F. Squeeze grated zucchini in a towel to remove moisture.','Mix wet ingredients. Stir in zucchini. Add dry ingredients and walnuts, mix until just combined.','Pour into a loaf pan or muffin tin. Bake loaf 50–55 min or muffins 20–22 min.']},
+
+];
+
+// ─── STORAGE ────────────────────────────────────────────────────────────────
+const KEY = 'fallows_recipes_v1';
+
+function loadRecipes() {
+  try {
+    const s = localStorage.getItem(KEY);
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  const data = {builtin: true, custom: []};
+  localStorage.setItem(KEY, JSON.stringify(data));
+  return data;
+}
+
+function saveCustom(custom) {
+  const d = loadRecipes();
+  d.custom = custom;
+  localStorage.setItem(KEY, JSON.stringify(d));
+}
+
+let stored = loadRecipes();
+let customRecipes = stored.custom || [];
+let allRecipes = () => [...customRecipes, ...BUILT_IN];
+
+let currentFilter = 'All';
+
+// ─── RENDER ─────────────────────────────────────────────────────────────────
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderGrid() {
+  const q = (document.getElementById('searchInput').value||'').toLowerCase();
+  const recipes = allRecipes();
+  const filtered = recipes.filter(r => {
+    const catOk = currentFilter === 'All' || r.cat === currentFilter;
+    const qOk = !q || r.title.toLowerCase().includes(q) || (r.desc||'').toLowerCase().includes(q);
+    return catOk && qOk;
+  });
+
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+
+  if (!filtered.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map(r => `
+    <div class="card" onclick="viewRecipe('${esc(r.id)}')">
+      <div class="card-thumb">
+        <span>${r.emoji||'🍽️'}</span>
+        ${r.image ? `<img src="${esc(r.image)}" alt="" onerror="this.remove()">` : ''}
+      </div>
+      <div class="card-body">
+        <div class="card-cat">${esc(r.cat)}</div>
+        <div class="card-title">${esc(r.title)}</div>
+        ${r.desc ? `<div class="card-desc">${esc(r.desc)}</div>` : ''}
+        <div class="card-footer">
+          ${r.prep ? `<span>⏱ ${esc(r.prep)}</span>` : ''}
+          ${r.cook ? `<span>🔥 ${esc(r.cook)}</span>` : ''}
+          ${r.servings ? `<span>👥 ${esc(r.servings)}</span>` : ''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderGrid();
+}
+
+// ─── VIEW ────────────────────────────────────────────────────────────────────
+function viewRecipe(id) {
+  const r = allRecipes().find(x => x.id === id);
+  if (!r) return;
+  const isCustom = customRecipes.some(x => x.id === id);
+
+  document.getElementById('viewModal').innerHTML = `
+    <div class="view-hero">
+      <span>${r.emoji||'🍽️'}</span>
+      ${r.image ? `<img src="${esc(r.image)}" alt="" onerror="this.remove()">` : ''}
+    </div>
+    ${r.image ? `<button class="view-close" onclick="closeView()">×</button>` : `<button class="view-close-light" onclick="closeView()">×</button>`}
+    <div class="view-body">
+      <div class="view-cat">${esc(r.cat)}</div>
+      <h2 class="view-title">${esc(r.title)}</h2>
+      ${r.desc ? `<p class="view-desc">${esc(r.desc)}</p>` : ''}
+      <div class="view-meta">
+        ${r.prep ? `<span>⏱ <strong>${esc(r.prep)} prep</strong></span>` : ''}
+        ${r.cook ? `<span>🔥 <strong>${esc(r.cook)} cook</strong></span>` : ''}
+        ${r.servings ? `<span>👥 <strong>${esc(r.servings)}</strong></span>` : ''}
+        ${r.source ? `<span>🔗 <a href="${esc(r.source)}" target="_blank" rel="noopener">View original</a></span>` : ''}
+      </div>
+      ${r.ingredients && r.ingredients.length ? `
+        <h3 class="sec-head">Ingredients</h3>
+        <ul class="ing-list">
+          ${r.ingredients.map(i=>`<li><span class="ing-dot"></span>${esc(i)}</li>`).join('')}
+        </ul>` : ''}
+      ${r.steps && r.steps.length ? `
+        <h3 class="sec-head">Instructions</h3>
+        <ol class="step-list">
+          ${r.steps.map((s,i)=>`<li><span class="step-n">${i+1}</span><span>${esc(s)}</span></li>`).join('')}
+        </ol>` : ''}
+      ${r.notes ? `
+        <div class="notes-box">
+          <strong>Fallows Notes</strong>
+          ${esc(r.notes)}
+        </div>` : ''}
+      <div class="view-actions">
+        ${isCustom ? `<button class="del-btn" onclick="deleteRecipe('${esc(r.id)}')">Remove recipe</button>` : '<div></div>'}
+        <button onclick="closeView()" style="background:none;border:none;color:var(--ink3);font-family:Jost,sans-serif;font-size:13px;cursor:pointer;padding:8px 0;">Close</button>
+      </div>
+    </div>`;
+  document.getElementById('viewOverlay').classList.add('open');
+}
+
+function closeView(){ document.getElementById('viewOverlay').classList.remove('open'); }
+
+function deleteRecipe(id) {
+  if (!confirm('Remove this recipe?')) return;
+  customRecipes = customRecipes.filter(r => r.id !== id);
+  saveCustom(customRecipes);
+  closeView();
+  renderGrid();
+}
+
+// ─── ADD ─────────────────────────────────────────────────────────────────────
+function openAdd() {
+  const saved = localStorage.getItem('anth_key');
+  if (saved) document.getElementById('apiKey').value = saved;
+  document.getElementById('addOverlay').classList.add('open');
+}
+function closeAdd(){ document.getElementById('addOverlay').classList.remove('open'); document.getElementById('aiStatus').classList.remove('show'); }
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-btn2').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tp-url').classList.toggle('active', tab==='url');
+  document.getElementById('tp-manual').classList.toggle('active', tab==='manual');
+}
+
+async function fetchFromUrl() {
+  const key = document.getElementById('apiKey').value.trim();
+  const url = document.getElementById('urlInput').value.trim();
+  const cat = document.getElementById('urlCat').value;
+  if (!key) { alert('Please enter your Anthropic API key.'); return; }
+  if (!url) { alert('Please enter a recipe URL.'); return; }
+  localStorage.setItem('anth_key', key);
+
+  const status = document.getElementById('aiStatus');
+  const statusText = document.getElementById('aiText');
+  const btn = document.getElementById('fetchBtn');
+  status.classList.add('show');
+  btn.disabled = true;
+  const msgs = ['Fetching the recipe page…','Reading ingredients and steps…','Extracting timings and photos…','Almost done…'];
+  let i = 0; statusText.textContent = msgs[0];
+  const t = setInterval(() => { i = Math.min(i+1, msgs.length-1); statusText.textContent = msgs[i]; }, 3500);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-calls':'true'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:4000,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:`Extract the complete recipe from this URL: ${url}\n\nReturn ONLY a valid JSON object with these fields:\n{\n  "title": "recipe name",\n  "desc": "1-2 sentence description",\n  "cat": "${cat}",\n  "prep": "X min",\n  "cook": "X min",\n  "servings": "X servings",\n  "image": "direct https URL to main recipe photo or empty string",\n  "emoji": "one relevant food emoji",\n  "source": "${url}",\n  "notes": "any tips or variations from the recipe or empty string",\n  "ingredients": ["ingredient 1","ingredient 2"],\n  "steps": ["step 1","step 2"]\n}\n\nExtract ALL ingredients and ALL steps. For image, find the main recipe photo — must end in .jpg/.jpeg/.png/.webp.`}]
+      })
+    });
+    clearInterval(t);
+    if (!res.ok) { const e = await res.json().catch(()=>{}); throw new Error(e?.error?.message||`API error ${res.status}`); }
+    const data = await res.json();
+    const text = data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Could not parse recipe from AI response.');
+    const rd = JSON.parse(match[0]);
+    const nr = { id:'c-'+Date.now(), title:rd.title||'Untitled', desc:rd.desc||'', cat:rd.cat||cat,
+      prep:rd.prep||'', cook:rd.cook||'', servings:rd.servings||'', image:rd.image||'', emoji:rd.emoji||'🍽️',
+      source:rd.source||url, notes:rd.notes||'',
+      ingredients:Array.isArray(rd.ingredients)?rd.ingredients:[], steps:Array.isArray(rd.steps)?rd.steps:[] };
+    customRecipes.unshift(nr);
+    saveCustom(customRecipes);
+    renderGrid();
+    closeAdd();
+    setTimeout(()=>viewRecipe(nr.id), 100);
+  } catch(err) {
+    clearInterval(t);
+    status.classList.remove('show');
+    btn.disabled = false;
+    alert('Something went wrong: '+err.message);
+  }
+}
+
+function addManual() {
+  const name = document.getElementById('m-name').value.trim();
+  if (!name) { alert('Please enter a recipe name.'); return; }
+  const nr = {
+    id:'c-'+Date.now(), title:name,
+    desc:document.getElementById('m-desc').value.trim(),
+    cat:document.getElementById('m-cat').value,
+    prep:document.getElementById('m-prep').value.trim(),
+    cook:document.getElementById('m-cook').value.trim(),
+    servings:document.getElementById('m-serv').value.trim(),
+    image:'', emoji:'🍽️',
+    source:document.getElementById('m-src').value.trim(),
+    notes:document.getElementById('m-notes').value.trim(),
+    ingredients:document.getElementById('m-ing').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    steps:document.getElementById('m-steps').value.split('\n').map(s=>s.trim()).filter(Boolean)
+  };
+  customRecipes.unshift(nr);
+  saveCustom(customRecipes);
+  renderGrid();
+  closeAdd();
+  setTimeout(()=>viewRecipe(nr.id), 100);
+}
+
+// Close on backdrop click
+document.getElementById('viewOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeView(); });
+document.getElementById('addOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeAdd(); });
+
+renderGrid();
+</script>
+</body>
+</html>
